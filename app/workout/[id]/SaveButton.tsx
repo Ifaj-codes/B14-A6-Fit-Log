@@ -1,27 +1,35 @@
 "use client";
 
-export default function SaveButton({ workoutData }: any) {
-  const handleSave = () => {
-    // Saved ডাটা রাখার জন্য আলাদা স্টোরেজ "savedFitPlans" বানালাম
-    const existing = JSON.parse(localStorage.getItem("savedFitPlans") || "[]");
-    const isAlreadyAdded = existing.find((item: any) => String(item.id || item._id) === String(workoutData.id || workoutData._id));
+interface Workout {
+  _id?: string;
+  id?: string;
+  workoutName: string;
+  [key: string]: any;
+}
 
+export default function SaveButton({ workoutData }: { workoutData: Workout }) {
+  const handleSave = () => {
+    const existing = JSON.parse(localStorage.getItem("savedFitPlans") || "[]");
+    
+    const currentId = String(workoutData._id || workoutData.id);
+    const isAlreadyAdded = existing.find((item: Workout) => String(item._id || item.id) === currentId);
+    
     if (isAlreadyAdded) {
-      alert("Already saved for later! 🔖");
+      alert("Already in your saved list!");
     } else {
       existing.push(workoutData);
       localStorage.setItem("savedFitPlans", JSON.stringify(existing));
-      window.dispatchEvent(new Event("savedUpdated")); // Navbar-কে সিগন্যাল
-      alert("Saved for later! 🔖");
+      window.dispatchEvent(new Event("savedUpdated"));
+      alert("Saved for later!");
     }
   };
 
   return (
     <button 
       onClick={handleSave}
-      className="border-2 border-gray-600 font-bold py-4 px-6 rounded-md hover:bg-white hover:text-black transition flex-1 text-center"
+      className="border border-gray-600 text-white font-bold py-3 px-6 rounded-full hover:bg-gray-800 flex-1 text-center transition text-sm"
     >
-      🔖 Save for later
+      Save for later
     </button>
   );
 }
